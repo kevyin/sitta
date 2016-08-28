@@ -9,6 +9,7 @@ Created on Sun Aug 28 21:45:11 2016
 from __future__ import division
 from numpy import *
 from sympy import *
+import matplotlib
 x, y, z, t = symbols('x y z t')
 k, m, n = symbols('k m n', integer=True)
 f, g, h = symbols('f g h', cls=Function)
@@ -52,6 +53,5 @@ def average(a, b):
     return (a + b) * 0.5
 
 #%%
-%matplotlib qt
 import pylab
 pylab.plot(range(10), 'o')

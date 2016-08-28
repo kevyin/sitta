@@ -6,6 +6,8 @@ xlrd
 pandas
 numpy
 matplotlib
+ipython
+jupyter
 scipy
 sympy
 pyside

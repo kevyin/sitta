@@ -31,6 +31,8 @@ test -d venv || python virtualenv-1.11.6/virtualenv.py -p $pythonpath venv
 . venv/bin/activate && pip install -U pip && pip install wheel && pip install -r requirements.txt
 touch venv/bin/activate
 
+source venv/bin/activate
+
 mkdir -p $(jupyter --data-dir)/nbextensions
 cd $(jupyter --data-dir)/nbextensions
 git clone https://github.com/lambdalisue/jupyter-vim-binding vim_binding
