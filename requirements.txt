@@ -1,0 +1,14 @@
+nose
+requests
+lxml
+xmltodict
+xlrd
+pandas
+numpy
+matplotlib
+scipy
+sympy
+pyside
+rope
+sphinx
+spyder
