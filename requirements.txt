@@ -14,3 +14,5 @@ pyside
 rope
 sphinx
 spyder
+plotly
+git+https://github.com/yhat/ggplot.git
