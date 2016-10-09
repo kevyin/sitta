@@ -15,5 +15,6 @@ rope
 sphinx
 spyder
 plotly
+scikit-learn
 git+https://github.com/yhat/ggplot.git
 requests[security]
