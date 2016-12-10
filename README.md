@@ -14,7 +14,7 @@ https://blog.dominodatalab.com/video-huge-debate-r-vs-python-data-science/
 #### Visualisation
 * altair - matplotlib replacement, uses grammar of graphics
 * bokeh - interactive visualizations
-* geoplotlib - mapsga
+* geoplotlib - maps
 
 #### Advanced and fast data 
 * blaze - numpy pandas syntax with any backend, abstracts storage and compute. Eg spark
