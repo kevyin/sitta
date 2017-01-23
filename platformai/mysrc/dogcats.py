@@ -4,11 +4,13 @@ __author__ = 'kevin'
 
 from optparse import OptionParser
 import os, sys
-import logging
+import logging, datetime
 from utils import *
 from vgg16 import Vgg16
 DATA_HOME_DIR = os.getcwd()
-DATA_HOME_DIR = os.path.join(os.getcwd(), 'output')
+OUTPUT_PREFIX = os.path.join(os.getcwd(), 'output')
+
+DATE_STR = datetime.datetime.today().strftime("%Y_%m%d_%H%M%S")
 
 #####################################################################################
 # MAIN
@@ -61,8 +63,8 @@ def main():
 
     global DATA_HOME_DIR
     DATA_HOME_DIR = args[0]
-    global OUTPUT_DIR
-    OUTPUT_DIR = args[1]
+    global OUTPUT_PREFIX
+    OUTPUT_PREFIX = args[1]
 
 
     def vgg(data_home, batch_size):
@@ -82,6 +84,13 @@ def main():
     vgg.model.optimizer.lr = opts.learning_rate
 
     # run epochs and save weights at each
+    for epoch in range(opts.epochs):
+        logging.info('Running epoch %d' % epoch)
+        vgg.fit(batches, val_batches, nb_epoch=1)
+        latest_weights_file = OUTPUT_PREFIX + DATA_HOME_DIR + str(epoch) + '.h5'
+        vgg.model.save_weights(latest_weights_file)
+    logging.info('Complete %s fit operations' % opts.epochs)
+
 
 
 
