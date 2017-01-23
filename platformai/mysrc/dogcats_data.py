@@ -5,8 +5,6 @@ __author__ = 'kevin'
 from optparse import OptionParser
 import os, sys
 import logging
-from utils import *
-from vgg16 import Vgg16
 DATA_HOME_DIR = os.getcwd()
 DATA_HOME_DIR = os.path.join(os.getcwd(), 'output')
 
@@ -20,15 +18,6 @@ def main():
     parser.add_option("", "--run",
                       dest="run", action='store_true', default=False,
                       help="Really run the changes, not a dry run")
-    parser.add_option("-b", "--batch_size",
-                      dest="batch_size", default=64,
-                      help="batch_size [64]")
-    parser.add_option("-e", "--epochs",
-                      dest="epochs", default=1,
-                      help="epochs [1]")
-    parser.add_option("-r", "--learning_rate",
-                      dest="learning_rate", default=0.01,
-                      help="learning rate [0.01]")
     parser.add_option("-d", "--loglevel",
                       dest="loglevel", default="Info",
                       help="Logging level Debug|Info|Warning|Error")
@@ -64,26 +53,8 @@ def main():
     global OUTPUT_DIR
     OUTPUT_DIR = args[1]
 
-
-    def vgg(data_home, batch_size):
-        test_path = os.path.join(DATA_HOME_DIR, 'test')
-        results_path = os.path.join(DATA_HOME_DIR, 'results')
-        train_path = os.path.join(DATA_HOME_DIR, 'train')
-        valid_path = os.path.join(DATA_HOME_DIR, 'valid')
-
-        vgg = Vgg16()
-        batches = vgg.get_batches(train_path, batch_size=batch_size)
-        val_batches = vgg.get_batches(valid_path, batch_size=batch_size)
-
-        return (vgg, batches, val_batches)
-
-    (vgg, batches, val_batches) = vgg(DATA_HOME_DIR, opts.batch_size)
-    vgg.finetune(batches)
-    vgg.model.optimizer.lr = opts.learning_rate
-
-    # run epochs and save weights at each
-
-
+    from utils import *
+    from vgg16 import Vgg16
 
 
 
