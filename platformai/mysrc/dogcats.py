@@ -32,6 +32,9 @@ def main():
     parser.add_option("-r", "--learning_rate",
                       dest="learning_rate", default=0.01,
                       help="learning rate [0.01]")
+    parser.add_option("-k", "--kaggle_submission",
+                      dest="kaggle_submission", default=None,
+                      help="kaggle submission file")
     parser.add_option("-d", "--loglevel",
                       dest="loglevel", default="Info",
                       help="Logging level Debug|Info|Warning|Error")
@@ -78,9 +81,11 @@ def main():
         batches = vgg.get_batches(train_path, batch_size=batch_size)
         val_batches = vgg.get_batches(valid_path, batch_size=batch_size)
 
-        return (vgg, batches, val_batches)
+        return (vgg, batches, val_batches, test_path, results_path, train_path, valid_path, batch_size)
 
-    (vgg, batches, val_batches) = vgg(DATA_HOME_DIR, opts.batch_size)
+    (vgg, batches, val_batches,
+     test_path, results_path,
+     train_path, valid_path, batch_size) = vgg(DATA_HOME_DIR, opts.batch_size)
     vgg.finetune(batches)
     vgg.model.optimizer.lr = opts.learning_rate
 
@@ -99,6 +104,37 @@ def main():
         vgg.model.save_weights(latest_weights_file)
     logging.info('Complete %s fit operations' % opts.epochs)
 
+
+    ## validate predictions
+    # vgg.model.load_weights(latest_weights_file)
+    # val_batches, probs = vgg.test(valid_path, batch_size = batch_size)
+    # expected_labels = val_batches.classes #0 or 1
+    #
+    # # Round our predictions to 0/1 to generate labels
+    # our_predictions = probs[:,0]
+    # our_labels = np.round(1-our_predictions)
+    #
+    # from sklearn.metrics import confusion_matrix
+    # cm = confusion_matrix(expected_labels, our_labels)
+    # plot_confusion_matrix(cm, val_batches.class_indices)
+
+    ## Format to Kaggle
+
+    if opts.kaggle_submission:
+        ## Generate predictions
+        batches, preds = vgg.test(test_path, batch_size=batch_size*2)
+        filenames = batches.filenames[:5]
+        #Save our test results arrays so we can use them again later
+        save_array(results_path + 'test_preds.dat', preds)
+        save_array(results_path + 'filenames.dat', filenames)
+
+        isdog = preds[:,1]
+        isdog = isdog.clip(min=0.05, max=0.95)
+
+        ids = np.array([int(f[8:f.find('.')]) for f in filenames])
+        subm = np.stack([ids,isdog], axis=1)
+
+        np.savetxt(opts.kaggle_submission, subm, fmt='%d,%.5f', header='id,label', comments='')
 
 
 
