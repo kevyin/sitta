@@ -125,8 +125,8 @@ def main():
         batches, preds = vgg.test(test_path, batch_size=batch_size*2)
         filenames = batches.filenames[:5]
         #Save our test results arrays so we can use them again later
-        save_array(results_path + 'test_preds.dat', preds)
-        save_array(results_path + 'filenames.dat', filenames)
+        # save_array(results_path + 'test_preds.dat', preds)
+        # save_array(results_path + 'filenames.dat', filenames)
 
         isdog = preds[:,1]
         isdog = isdog.clip(min=0.05, max=0.95)
