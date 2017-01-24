@@ -7,6 +7,7 @@ import os, sys
 import logging, datetime
 from utils import *
 from vgg16 import Vgg16
+from keras.callbacks import CSVLogger
 DATA_HOME_DIR = os.getcwd()
 OUTPUT_PREFIX = os.path.join(os.getcwd(), 'output')
 
@@ -83,11 +84,18 @@ def main():
     vgg.finetune(batches)
     vgg.model.optimizer.lr = opts.learning_rate
 
+
     # run epochs and save weights at each
-    for epoch in range(opts.epochs):
-        logging.info('Running epoch %d' % epoch)
-        vgg.fit(batches, val_batches, nb_epoch=1)
-        latest_weights_file = OUTPUT_PREFIX + DATA_HOME_DIR + str(epoch) + '.h5'
+    for epoch in range(int(opts.epochs)):
+        prefix = OUTPUT_PREFIX + DATE_STR + '-' + str(epoch)
+        logging.info('Running epoch %s' % prefix)
+
+        training_log = prefix + '.log.csv'
+        csv_logger = CSVLogger(training_log, separator=',', append=True)
+        callbacks = [csv_logger]
+
+        vgg.fit(batches, val_batches, nb_epoch=1, callbacks=callbacks)
+        latest_weights_file = prefix + '.h5'
         vgg.model.save_weights(latest_weights_file)
     logging.info('Complete %s fit operations' % opts.epochs)
 
