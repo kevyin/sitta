@@ -6,7 +6,7 @@ from optparse import OptionParser
 import os, sys
 import logging, datetime
 from utils import *
-from vgg16 import Vgg16
+from vgg16bn import Vgg16BN
 from keras.callbacks import CSVLogger
 DATA_HOME_DIR = os.getcwd()
 OUTPUT_PREFIX = os.path.join(os.getcwd(), 'output')
@@ -20,7 +20,7 @@ def my_vgg(data_home, batch_size):
     train_path = os.path.join(data_home, 'train')
     valid_path = os.path.join(data_home, 'valid')
 
-    vgg_ = Vgg16()
+    vgg_ = Vgg16BN()
     batches = vgg_.get_batches(train_path, batch_size=batch_size)
     val_batches = vgg_.get_batches(valid_path, batch_size=batch_size)
 
@@ -49,6 +49,9 @@ def main():
     parser.add_option("-k", "--kaggle_submission",
                       dest="kaggle_submission", default=None,
                       help="kaggle submission file")
+    parser.add_option("-w", "--weights",
+                      dest="weights", default=None,
+                      help="Load previous weights")
     parser.add_option("-d", "--loglevel",
                       dest="loglevel", default="Info",
                       help="Logging level Debug|Info|Warning|Error")
@@ -90,6 +93,9 @@ def main():
 
     ## Format to Kaggle
     if not opts.kaggle_submission:
+        if opts.weights:
+            vgg.model.load_weights(opts.weights)
+
         vgg.finetune(batches)
         vgg.model.optimizer.lr = opts.learning_rate
 
@@ -142,8 +148,6 @@ def main():
 
         isdog = preds[:,1]
         isdog = isdog.clip(min=0.05, max=0.95)
-        print filenames
-        print len(isdog)
 
         ids = np.array([int(f[8:f.find('.')]) for f in filenames])
         subm = np.stack([ids,isdog], axis=1)
