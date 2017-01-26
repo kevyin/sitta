@@ -23,6 +23,7 @@ def my_vgg(data_home, batch_size):
     vgg_ = Vgg16BN()
     batches = vgg_.get_batches(train_path, batch_size=batch_size)
     val_batches = vgg_.get_batches(valid_path, batch_size=batch_size)
+    print vgg_.model.summary()
 
     return (vgg_, batches, val_batches, test_path, results_path, train_path, valid_path, batch_size)
 
