@@ -13,6 +13,20 @@ OUTPUT_PREFIX = os.path.join(os.getcwd(), 'output')
 
 DATE_STR = datetime.datetime.today().strftime("%Y_%m%d_%H%M%S")
 
+
+def my_vgg(data_home, batch_size):
+    test_path = os.path.join(data_home, 'test')
+    results_path = os.path.join(data_home, 'results')
+    train_path = os.path.join(data_home, 'train')
+    valid_path = os.path.join(data_home, 'valid')
+
+    vgg_ = Vgg16()
+    batches = vgg_.get_batches(train_path, batch_size=batch_size)
+    val_batches = vgg_.get_batches(valid_path, batch_size=batch_size)
+
+    return (vgg_, batches, val_batches, test_path, results_path, train_path, valid_path, batch_size)
+
+
 #####################################################################################
 # MAIN
 def main():
@@ -70,71 +84,72 @@ def main():
     global OUTPUT_PREFIX
     OUTPUT_PREFIX = args[1]
 
-
-    def vgg(data_home, batch_size):
-        test_path = os.path.join(DATA_HOME_DIR, 'test')
-        results_path = os.path.join(DATA_HOME_DIR, 'results')
-        train_path = os.path.join(DATA_HOME_DIR, 'train')
-        valid_path = os.path.join(DATA_HOME_DIR, 'valid')
-
-        vgg = Vgg16()
-        batches = vgg.get_batches(train_path, batch_size=batch_size)
-        val_batches = vgg.get_batches(valid_path, batch_size=batch_size)
-
-        return (vgg, batches, val_batches, test_path, results_path, train_path, valid_path, batch_size)
-
     (vgg, batches, val_batches,
      test_path, results_path,
-     train_path, valid_path, batch_size) = vgg(DATA_HOME_DIR, opts.batch_size)
-    vgg.finetune(batches)
-    vgg.model.optimizer.lr = opts.learning_rate
-
-
-    # run epochs and save weights at each
-    for epoch in range(int(opts.epochs)):
-        prefix = OUTPUT_PREFIX + DATE_STR + '-' + str(epoch)
-        logging.info('Running epoch %s' % prefix)
-
-        training_log = prefix + '.log.csv'
-        csv_logger = CSVLogger(training_log, separator=',', append=True)
-        callbacks = [csv_logger]
-
-        vgg.fit(batches, val_batches, nb_epoch=1, callbacks=callbacks)
-        latest_weights_file = prefix + '.h5'
-        vgg.model.save_weights(latest_weights_file)
-    logging.info('Complete %s fit operations' % opts.epochs)
-
-
-    ## validate predictions
-    # vgg.model.load_weights(latest_weights_file)
-    # val_batches, probs = vgg.test(valid_path, batch_size = batch_size)
-    # expected_labels = val_batches.classes #0 or 1
-    #
-    # # Round our predictions to 0/1 to generate labels
-    # our_predictions = probs[:,0]
-    # our_labels = np.round(1-our_predictions)
-    #
-    # from sklearn.metrics import confusion_matrix
-    # cm = confusion_matrix(expected_labels, our_labels)
-    # plot_confusion_matrix(cm, val_batches.class_indices)
+     train_path, valid_path, batch_size) = my_vgg(DATA_HOME_DIR, opts.batch_size)
 
     ## Format to Kaggle
+    if not opts.kaggle_submission:
+        vgg.finetune(batches)
+        vgg.model.optimizer.lr = opts.learning_rate
 
-    if opts.kaggle_submission:
+
+        # run epochs and save weights at each
+        for epoch in range(int(opts.epochs)):
+            prefix = OUTPUT_PREFIX + DATE_STR + '-' + str(epoch)
+            logging.info('Running epoch %s' % prefix)
+
+            training_log = prefix + '.log.csv'
+            csv_logger = CSVLogger(training_log, separator=',', append=True)
+            callbacks = [csv_logger]
+
+            vgg.fit(batches, val_batches, nb_epoch=1, callbacks=callbacks)
+            latest_weights_file = prefix + '.h5'
+            vgg.model.save_weights(latest_weights_file)
+        logging.info('Complete %s fit operations' % opts.epochs)
+
+
+        ## validate predictions
+        # vgg.model.load_weights(latest_weights_file)
+        # val_batches, probs = vgg.test(valid_path, batch_size = batch_size)
+        # expected_labels = val_batches.classes #0 or 1
+        #
+        # # Round our predictions to 0/1 to generate labels
+        # our_predictions = probs[:,0]
+        # our_labels = np.round(1-our_predictions)
+        #
+        # from sklearn.metrics import confusion_matrix
+        # cm = confusion_matrix(expected_labels, our_labels)
+        # plot_confusion_matrix(cm, val_batches.class_indices)
+
+    else:
         ## Generate predictions
-        batches, preds = vgg.test(test_path, batch_size=batch_size*2)
-        filenames = batches.filenames[:5]
-        #Save our test results arrays so we can use them again later
-        # save_array(results_path + 'test_preds.dat', preds)
-        # save_array(results_path + 'filenames.dat', filenames)
+        prefix = opts.kaggle_submission
+
+        pred_dat = prefix + '.test_preds.dat'
+        filenames_dat = prefix + '.filenames.dat'
+
+        if os.path.exists(pred_dat) and os.path.exists(filenames_dat):
+            preds = load_array(pred_dat)
+            filenames = load_array(filenames_dat)
+        else:
+            vgg.model.load_weights(opts.kaggle_submission)
+            batches, preds = vgg.test(test_path, batch_size=batch_size)
+            filenames = batches.filenames
+            #Save our test results arrays so we can use them again later
+            save_array(pred_dat, preds)
+            save_array(filenames_dat, filenames)
 
         isdog = preds[:,1]
         isdog = isdog.clip(min=0.05, max=0.95)
+        print filenames
+        print len(isdog)
 
         ids = np.array([int(f[8:f.find('.')]) for f in filenames])
         subm = np.stack([ids,isdog], axis=1)
 
-        np.savetxt(opts.kaggle_submission, subm, fmt='%d,%.5f', header='id,label', comments='')
+        subm_file = prefix + '.submission.csv'
+        np.savetxt(subm_file, subm, fmt='%d,%.5f', header='id,label', comments='')
 
 
 
