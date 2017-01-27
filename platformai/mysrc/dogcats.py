@@ -240,7 +240,7 @@ def main():
         ll_val_feat = load_array(valid_ll_feat_bc)
     else:
         ll_trn_feat = model.predict_generator(batches, batches.nb_sample)
-        ll_val_feat = model.predict_generator(val_batches, batches.nb_sample)
+        ll_val_feat = model.predict_generator(val_batches, val_batches.nb_sample)
         save_array(train_ll_feat_bc, ll_trn_feat)
         save_array(valid_ll_feat_bc, ll_val_feat)
 
