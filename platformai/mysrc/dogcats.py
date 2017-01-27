@@ -182,7 +182,7 @@ def main():
     OUTPUT_PREFIX = args[1]
 
     data_home = DATA_HOME_DIR
-    batch_size = opts.batch_size
+    batch_size = int(opts.batch_size)
 
     test_path = os.path.join(data_home, 'test/')
     results_path = os.path.join(data_home, 'results/')
