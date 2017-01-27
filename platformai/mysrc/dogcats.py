@@ -60,6 +60,7 @@ def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=12, callbacks=callbacks)
     ll_model.optimizer.lr=1e-7
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=1, callbacks=callbacks)
+    print "saving weights ll_bn"
     ll_model.save_weights(model_path+'ll_bn' + i + '.h5')
 
     vgg = Vgg16()
@@ -258,12 +259,23 @@ def main():
             prefix = OUTPUT_PREFIX + DATE_STR + '-' + str(i)
             logging.info('Running epoch %s' % prefix)
 
-            training_log = prefix + '.log.csv'
-            csv_logger = CSVLogger(training_log, separator=',', append=True)
-            callbacks = [csv_logger]
+            training_log = prefix + '.last_layer.log.csv'
+            if not os.path.exists(os.path.dirname(training_log)):
+                os.makedirs(os.path.dirname(training_log))
+            csv_logger1 = CSVLogger(training_log, separator=',', append=True)
+            callbacks1 = [csv_logger1]
             i = str(i)
-            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, callbacks)
-            train_dense_layers(i, model, trn, val, trn_features, val_features, trn_labels, val_labels, batch_size, model_path, callbacks)
+            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, callbacks1)
+
+
+            training_log = prefix + '.dense_layer.log.csv'
+            if not os.path.exists(os.path.dirname(training_log)):
+                os.makedirs(os.path.dirname(training_log))
+            csv_logger2 = CSVLogger(training_log, separator=',', append=True)
+            callbacks2 = [csv_logger2]
+
+
+            train_dense_layers(i, model, trn, val, trn_features, val_features, trn_labels, val_labels, batch_size, model_path, callbacks2)
         # if opts.weights:
         #     vgg.model.load_weights(opts.weights)
         #
