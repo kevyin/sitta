@@ -259,23 +259,18 @@ def main():
             prefix = OUTPUT_PREFIX + DATE_STR + '-' + str(i)
             logging.info('Running epoch %s' % prefix)
 
-            training_log = prefix + '.last_layer.log.csv'
-            if not os.path.exists(os.path.dirname(training_log)):
-                os.makedirs(os.path.dirname(training_log))
-            csv_logger1 = CSVLogger(training_log, separator=',', append=True)
-            callbacks1 = [csv_logger1]
             i = str(i)
-            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, callbacks1)
+            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, [])
 
 
-            training_log = prefix + '.dense_layer.log.csv'
-            if not os.path.exists(os.path.dirname(training_log)):
-                os.makedirs(os.path.dirname(training_log))
-            csv_logger2 = CSVLogger(training_log, separator=',', append=True)
-            callbacks2 = [csv_logger2]
+            # training_log = prefix + '.dense_layer.log.csv'
+            # if not os.path.exists(os.path.dirname(training_log)):
+            #     os.makedirs(os.path.dirname(training_log))
+            # csv_logger2 = CSVLogger(training_log, separator=',', append=True)
+            # callbacks2 = [csv_logger2]
 
 
-            train_dense_layers(i, model, trn, val, trn_features, val_features, trn_labels, val_labels, batch_size, model_path, callbacks2)
+            train_dense_layers(i, model, trn, val, trn_features, val_features, trn_labels, val_labels, batch_size, model_path, [])
         # if opts.weights:
         #     vgg.model.load_weights(opts.weights)
         #
