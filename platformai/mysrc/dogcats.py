@@ -56,12 +56,14 @@ def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_
     ll_layers = get_ll_layers()
     ll_model = Sequential(ll_layers)
     ll_model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+
+    weights_file = model_path + 'll_bn' + i + '.h5'
+
     ll_model.optimizer.lr=1e-5
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=12, callbacks=callbacks)
     ll_model.optimizer.lr=1e-7
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=1, callbacks=callbacks)
-    print "saving weights ll_bn"
-    ll_model.save_weights(model_path+'ll_bn' + i + '.h5')
+    ll_model.save_weights(weights_file)
 
     vgg = Vgg16()
     model = vgg.model
@@ -91,7 +93,7 @@ def train_dense_layers(i, model, trn, val, trn_features, val_features, trn_label
                  batch_size=batch_size, validation_data=(val_features, val_labels), callbacks=callbacks)
 
     gen = image.ImageDataGenerator(rotation_range=10, width_shift_range=0.05,
-                                   width_zoom_range=0.05, zoom_range=0.05,
+                                   zoom_range=0.05,
                                    channel_shift_range=10, height_shift_range=0.05, shear_range=0.05, horizontal_flip=True)
     batches = gen.flow(trn, trn_labels, batch_size=batch_size)
     val_batches = image.ImageDataGenerator().flow(val, val_labels,
