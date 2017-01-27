@@ -57,13 +57,15 @@ def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_
     ll_model = Sequential(ll_layers)
     ll_model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
 
-    weights_file = model_path + 'll_bn' + i + '.h5'
+    weights_file_ll_bn = model_path + 'll_bn' + i + '.h5'
+    # if os.path.exists(weights_file_ll_bn):
+    #     ll_model.load_weights(weights_file_ll_bn)
 
     ll_model.optimizer.lr=1e-5
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=12, callbacks=callbacks)
     ll_model.optimizer.lr=1e-7
     ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=1, callbacks=callbacks)
-    ll_model.save_weights(weights_file)
+    ll_model.save_weights(weights_file_ll_bn)
 
     vgg = Vgg16()
     model = vgg.model
@@ -107,15 +109,15 @@ def train_dense_layers(i, model, trn, val, trn_features, val_features, trn_label
     conv_model.compile(optimizer=Adam(1e-5), loss='categorical_crossentropy',
                        metrics=['accuracy'])
     conv_model.save_weights(model_path+'no_dropout_bn' + i + '.h5')
-    conv_model.fit_generator(batches, samples_per_epoch=batches.N, nb_epoch=1,
-                             validation_data=val_batches, nb_val_samples=val_batches.N, callbacks=callbacks)
+    conv_model.fit_generator(batches, samples_per_epoch=batches.N/2, nb_epoch=1,
+                             validation_data=val_batches, nb_val_samples=val_batches.N/2, callbacks=callbacks)
     for layer in conv_model.layers[16:]: layer.trainable = True
-    conv_model.fit_generator(batches, samples_per_epoch=batches.N, nb_epoch=8,
-                             validation_data=val_batches, nb_val_samples=val_batches.N, callbacks=callbacks)
+    conv_model.fit_generator(batches, samples_per_epoch=batches.N/2, nb_epoch=8,
+                             validation_data=val_batches, nb_val_samples=val_batches.N/2, callbacks=callbacks)
 
     conv_model.optimizer.lr = 1e-7
-    conv_model.fit_generator(batches, samples_per_epoch=batches.N, nb_epoch=10,
-                             validation_data=val_batches, nb_val_samples=val_batches.N, callbacks=callbacks)
+    conv_model.fit_generator(batches, samples_per_epoch=batches.N/2, nb_epoch=10,
+                             validation_data=val_batches, nb_val_samples=val_batches.N/2, callbacks=callbacks)
     conv_model.save_weights(model_path + 'aug' + i + '.h5')
 
 
