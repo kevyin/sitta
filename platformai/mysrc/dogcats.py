@@ -209,7 +209,7 @@ def main():
     train_convlayer_features_bc= os.path.join(model_path, str(batch_size) + 'train_convlayer_features.bc')
     valid_convlayer_features_bc= os.path.join(model_path, str(batch_size) + 'valid_convlayer_features.bc')
 
-    # precompute conv layers
+    logging.info("precompute conv layers")
     if os.path.exists(train_convlayer_features_bc) and os.path.exists(valid_convlayer_features_bc):
         trn_features = load_array(train_convlayer_features_bc)
         val_features = load_array(valid_convlayer_features_bc)
@@ -219,7 +219,7 @@ def main():
         save_array(train_convlayer_features_bc, trn_features)
         save_array(valid_convlayer_features_bc, val_features)
 
-    # precompute training and validation layers with image decoding and resizing already done
+    logging.info("precompute training and validation layers with image decoding and resizing already done")
 
     train_data_bc = os.path.join(model_path, str(batch_size) + 'train_data.bc')
     valid_data_bc = os.path.join(model_path, str(batch_size) + 'valid_data.bc')
@@ -233,7 +233,7 @@ def main():
         save_array(train_data_bc, trn)
         save_array(valid_data_bc, val)
 
-    # precompute the output of all but the last dropout
+    logging.info("precompute the output of all but the last dropout")
     model.pop()
     model.pop()
 
@@ -250,6 +250,7 @@ def main():
         save_array(valid_ll_feat_bc, ll_val_feat)
 
     # precompute test data
+    logging.info("precompute test data")
     test_data_bc = os.path.join(model_path, 'test_data.bc')
     if os.path.exists(test_data_bc):
         test = load_array(test_data_bc)
