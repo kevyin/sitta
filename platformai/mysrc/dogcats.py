@@ -52,7 +52,7 @@ def get_fc_layers(p, in_shape):
     # return (vgg_, batches, val_batches, test_path, results_path, train_path, valid_path, batch_size,
     #         trn_features, val_features)
 
-def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, callbacks):
+def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, callbacks, ll_model_lrs, ll_model_nb_epochs):
     ll_layers = get_ll_layers()
     ll_model = Sequential(ll_layers)
     ll_model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
@@ -61,10 +61,10 @@ def train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_
     # if os.path.exists(weights_file_ll_bn):
     #     ll_model.load_weights(weights_file_ll_bn)
 
-    ll_model.optimizer.lr=1e-5
-    ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=12, callbacks=callbacks)
-    ll_model.optimizer.lr=1e-7
-    ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=1, callbacks=callbacks)
+    ll_model.optimizer.lr=ll_model_lrs[0]
+    ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=ll_model_nb_epochs[0], callbacks=callbacks)
+    ll_model.optimizer.lr=ll_model_lrs[1]
+    ll_model.fit(ll_trn_feat, trn_labels, validation_data=(ll_val_feat, val_labels), nb_epoch=ll_model_nb_epochs[1], callbacks=callbacks)
     ll_model.save_weights(weights_file_ll_bn)
 
     vgg = Vgg16()
@@ -148,6 +148,12 @@ def main():
     parser.add_option("-w", "--weights",
                       dest="weights", default=None,
                       help="Load previous weights")
+    parser.add_option("", "--ll_model_lrs",
+                      dest="ll_model_lrs", default='1e-5,1e-7',
+                      help="")
+    parser.add_option("", "--ll_model_nb_epochs",
+                      dest="ll_model_nb_epochs", default='12,1',
+                      help="")
     parser.add_option("-d", "--loglevel",
                       dest="loglevel", default="Info",
                       help="Logging level Debug|Info|Warning|Error")
@@ -182,6 +188,8 @@ def main():
     DATA_HOME_DIR = args[0]
     global OUTPUT_PREFIX
     OUTPUT_PREFIX = args[1]
+    ll_model_lrs = [float(x) for x in opts.ll_model_lrs.split(',')]
+    ll_model_nb_epochs = [int(x) for x in opts.ll_model_nb_epochs.split(',')]
 
     data_home = DATA_HOME_DIR
     batch_size = int(opts.batch_size)
@@ -265,7 +273,7 @@ def main():
             logging.info('Running epoch %s' % prefix)
 
             i = str(i)
-            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, [])
+            model = train_last_layer(i, ll_trn_feat, ll_val_feat, trn_labels, val_labels, model_path, [], ll_model_lrs, ll_model_nb_epochs)
 
 
             # training_log = prefix + '.dense_layer.log.csv'
