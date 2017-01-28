@@ -206,8 +206,8 @@ def main():
     conv_layers,fc_layers = split_at(model, Convolution2D)
     conv_model = Sequential(conv_layers)
 
-    train_convlayer_features_bc= os.path.join(model_path, 'train_convlayer_features.bc')
-    valid_convlayer_features_bc= os.path.join(model_path, 'valid_convlayer_features.bc')
+    train_convlayer_features_bc= os.path.join(model_path, str(batch_size) + 'train_convlayer_features.bc')
+    valid_convlayer_features_bc= os.path.join(model_path, str(batch_size) + 'valid_convlayer_features.bc')
 
     # precompute conv layers
     if os.path.exists(train_convlayer_features_bc) and os.path.exists(valid_convlayer_features_bc):
@@ -221,8 +221,8 @@ def main():
 
     # precompute training and validation layers with image decoding and resizing already done
 
-    train_data_bc = os.path.join(model_path, 'train_data.bc')
-    valid_data_bc = os.path.join(model_path, 'valid_data.bc')
+    train_data_bc = os.path.join(model_path, str(batch_size) + 'train_data.bc')
+    valid_data_bc = os.path.join(model_path, str(batch_size) + 'valid_data.bc')
 
     if os.path.exists(train_data_bc) and os.path.exists(valid_data_bc):
         trn = load_array(train_data_bc)
@@ -237,8 +237,8 @@ def main():
     model.pop()
     model.pop()
 
-    train_ll_feat_bc = os.path.join(model_path, 'train_ll_feat.bc')
-    valid_ll_feat_bc = os.path.join(model_path, 'valid_ll_feat.bc')
+    train_ll_feat_bc = os.path.join(model_path, str(batch_size) + 'train_ll_feat.bc')
+    valid_ll_feat_bc = os.path.join(model_path, str(batch_size) + 'valid_ll_feat.bc')
 
     if os.path.exists(train_ll_feat_bc) and os.path.exists(valid_ll_feat_bc):
         ll_trn_feat = load_array(train_ll_feat_bc)
