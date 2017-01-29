@@ -205,7 +205,7 @@ def main():
     val_batches = get_batches(valid_path, shuffle=False, batch_size=batch_size)
 
     (val_classes, trn_classes, val_labels, trn_labels,
-     val_filenames, filenames, test_filenames) = get_classes(data_home +'/')
+     val_filenames, filenames, test_filenames) = get_classes(data_home +'/', batch_size)
 
     vgg_ = Vgg16()
     model = vgg_.model

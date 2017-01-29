@@ -204,10 +204,10 @@ def vgg_ft(out_dim):
     return model
 
 
-def get_classes(path):
-    batches = get_batches(path+'train', shuffle=False, batch_size=1)
-    val_batches = get_batches(path+'valid', shuffle=False, batch_size=1)
-    test_batches = get_batches(path+'test', shuffle=False, batch_size=1)
+def get_classes(path, batch_size):
+    batches = get_batches(path+'train', shuffle=False, batch_size=batch_size)
+    val_batches = get_batches(path+'valid', shuffle=False, batch_size=batch_size)
+    test_batches = get_batches(path+'test', shuffle=False, batch_size=batch_size)
     return (val_batches.classes, batches.classes, onehot(val_batches.classes), onehot(batches.classes),
         val_batches.filenames, batches.filenames, test_batches.filenames)
 
