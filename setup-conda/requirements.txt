@@ -1,3 +1,8 @@
+dash==0.17.7  # The core dash backend
+dash-renderer==0.7.3  # The dash front-end
+dash-html-components==0.6.2  # HTML components
+dash-core-components==0.5.3  # Supercharged components
+plotly==2.0.12  # Plotly graphing library used in examples
 pyglet>=1.2.4
 pyshp
 cython
@@ -18,17 +23,16 @@ pyside
 rope
 sphinx
 spyder
-plotly
 scikit-learn
-git+https://github.com/yhat/ggplot.git
+#git+https://github.com/yhat/ggplot.git
 requests[security]
 feather-format
 ibis-framework
 altair
 bokeh
 geoplotlib
-git+https://github.com/blaze/blaze
+#git+https://github.com/blaze/blaze
 xarray
-daskp[complete]
+#daskp[complete]
 keras
 pymc3
